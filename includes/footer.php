@@ -4,20 +4,20 @@
  * Include at the bottom of every page
  */
 ?>
-        </div>
-    </main>
-
     <footer>
-        <div class="container">
-            <p>&copy; 2026 Event RSVP System. All rights reserved.</p>
-        </div>
+        © 2026 Event RSVP System. All rights reserved.
     </footer>
 
     <script>
         // Close dismissible alerts
-        document.querySelectorAll('.alert-close').forEach(btn => {
-            btn.addEventListener('click', function() {
-                this.parentElement.style.display = 'none';
+        document.querySelectorAll('.alert-close, .s-close').forEach(btn => {
+            btn.addEventListener('click', function(e) {
+                e.preventDefault();
+                if (this.closest('.alert')) {
+                    this.closest('.alert').style.display = 'none';
+                } else if (this.closest('.success-banner')) {
+                    this.closest('.success-banner').classList.remove('show');
+                }
             });
         });
 
@@ -27,29 +27,6 @@
                 const message = this.getAttribute('data-confirm') || 'Are you sure?';
                 if (!confirm(message)) {
                     e.preventDefault();
-                }
-            });
-        });
-
-        // Simple form validation
-        document.querySelectorAll('form').forEach(form => {
-            form.addEventListener('submit', function(e) {
-                const inputs = this.querySelectorAll('input[required], select[required]');
-                let firstInvalid = null;
-                inputs.forEach(input => {
-                    if (input.value.trim() === '') {
-                        if (!firstInvalid) {
-                            firstInvalid = input;
-                        }
-                        input.style.borderColor = 'var(--color-error)';
-                    } else {
-                        input.style.borderColor = '';
-                    }
-                });
-
-                if (firstInvalid) {
-                    e.preventDefault();
-                    firstInvalid.focus();
                 }
             });
         });
