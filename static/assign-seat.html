@@ -1,0 +1,269 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Assign Seat — RSVP-MASTER</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      min-height: 100vh;
+      background: linear-gradient(135deg, #f8fafc 0%, #ffffff 50%, #f8fafc 100%);
+      display: flex; flex-direction: column; color: #0f172a;
+    }
+    header {
+      position: sticky; top: 0; z-index: 30;
+      border-bottom: 1px solid rgba(226,232,240,.8);
+      background: rgba(255,255,255,.8); backdrop-filter: blur(12px);
+    }
+    .nav-inner {
+      max-width: 1120px; margin: 0 auto; height: 64px; padding: 0 24px;
+      display: flex; align-items: center; justify-content: space-between;
+    }
+    .brand { display: flex; align-items: center; gap: 12px; text-decoration: none; }
+    .brand-icon {
+      width: 32px; height: 32px; border-radius: 8px;
+      background: linear-gradient(135deg, #7c3aed, #4f46e5);
+      box-shadow: 0 1px 3px rgba(0,0,0,.15);
+      display: flex; align-items: center; justify-content: center; flex-shrink: 0;
+    }
+    .brand-icon svg { width: 16px; height: 16px; color: #fff; }
+    .brand-name { font-size: 14px; font-weight: 600; letter-spacing: -.3px; color: #0f172a; }
+    .nav-right { display: flex; gap: 4px; }
+    .btn-ghost {
+      display: inline-flex; align-items: center; gap: 6px; height: 32px; padding: 0 12px;
+      border: none; background: none; cursor: pointer; border-radius: 6px;
+      font-size: 14px; color: #64748b; text-decoration: none; transition: color .15s, background .15s;
+    }
+    .btn-ghost:hover { color: #0f172a; background: #f1f5f9; }
+    .btn-ghost svg { width: 16px; height: 16px; }
+
+    main { flex: 1; max-width: 672px; width: 100%; margin: 0 auto; padding: 40px 24px; }
+
+    .back-link {
+      display: inline-flex; align-items: center; gap: 6px;
+      font-size: 14px; color: #7c3aed; text-decoration: none; margin-bottom: 24px;
+    }
+    .back-link:hover { text-decoration: underline; }
+    .back-link svg { width: 16px; height: 16px; }
+
+    .page-header { margin-bottom: 32px; }
+    .page-title { font-size: 24px; font-weight: 700; letter-spacing: -.4px; color: #0f172a; }
+    .page-sub { margin-top: 4px; font-size: 14px; color: #64748b; }
+
+    /* Success banner */
+    .success-banner {
+      display: none; align-items: center;
+      border-radius: 12px; border: 1px solid #a7f3d0;
+      background: #ecfdf5; padding: 12px 16px;
+      font-size: 14px; font-weight: 500; color: #065f46; margin-bottom: 20px;
+    }
+    .success-banner.show { display: flex; }
+
+    /* Card */
+    .card {
+      overflow: hidden; border-radius: 16px; border: 1px solid #e2e8f0;
+      background: #fff; box-shadow: 0 1px 3px rgba(0,0,0,.06); margin-bottom: 16px;
+    }
+    .card-accent { height: 4px; background: linear-gradient(90deg, #8b5cf6, #6366f1); }
+    .card-body { padding: 24px; }
+    .card-section-title { font-size: 14px; font-weight: 600; color: #334155; margin-bottom: 16px; }
+
+    .avatar {
+      width: 48px; height: 48px; border-radius: 50%; flex-shrink: 0;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 13px; font-weight: 600; color: #fff;
+    }
+    .guest-row { display: flex; align-items: center; gap: 16px; margin-bottom: 20px; }
+    .g-name { font-size: 15px; font-weight: 600; text-transform: capitalize; color: #1e293b; }
+    .g-email { font-size: 13px; color: #94a3b8; margin-top: 2px; }
+
+    .info-table { border-radius: 8px; border: 1px solid #f1f5f9; overflow: hidden; }
+    .info-row { display: flex; align-items: center; justify-content: space-between; padding: 12px 16px; font-size: 14px; border-top: 1px solid #f1f5f9; }
+    .info-row:first-child { border-top: none; }
+    .info-label { font-weight: 500; color: #475569; }
+
+    .badge { display: inline-flex; align-items: center; padding: 2px 10px; border-radius: 999px; border: 1px solid; font-size: 12px; font-weight: 500; }
+    .badge-none       { background: #f4f4f5; color: #52525b; border-color: #e4e4e7; }
+    .badge-halal      { background: #ecfdf5; color: #065f46; border-color: #a7f3d0; }
+    .badge-glutenfree { background: #fffbeb; color: #92400e; border-color: #fde68a; }
+    .badge-vegan      { background: #f0fdfa; color: #134e4a; border-color: #99f6e4; }
+    .badge-vegetarian { background: #f7fee7; color: #3f6212; border-color: #bef264; }
+
+    .seat-pill {
+      display: inline-flex; align-items: center; gap: 6px; padding: 2px 10px;
+      border-radius: 999px; border: 1px solid #ddd6fe; background: #f5f3ff;
+      font-size: 12px; font-weight: 600; color: #6d28d9;
+    }
+    .seat-pill svg { width: 12px; height: 12px; }
+    .no-seat { font-size: 12px; font-style: italic; color: #94a3b8; }
+
+    /* Assign form */
+    form { display: flex; flex-direction: column; gap: 20px; padding: 24px; }
+    .field { display: flex; flex-direction: column; gap: 6px; }
+    .field label { font-size: 14px; font-weight: 500; color: #334155; }
+    select {
+      width: 100%; height: 36px; border: 1px solid #e2e8f0; border-radius: 6px;
+      background: #fff; padding: 0 10px; font-size: 14px; color: #0f172a; outline: none;
+      transition: border-color .15s, box-shadow .15s;
+    }
+    select:focus { border-color: #8b5cf6; box-shadow: 0 0 0 3px rgba(139,92,246,.15); }
+
+    .preview {
+      display: none; align-items: center; gap: 8px;
+      border-radius: 8px; border: 1px solid #ddd6fe; background: #f5f3ff;
+      padding: 10px 12px; font-size: 14px; color: #6d28d9;
+    }
+    .preview.show { display: flex; }
+    .preview svg { width: 16px; height: 16px; color: #8b5cf6; flex-shrink: 0; }
+
+    .form-actions { display: flex; align-items: center; justify-content: flex-end; gap: 12px; }
+    .btn { display: inline-flex; align-items: center; justify-content: center; gap: 6px; height: 36px; padding: 0 16px; border-radius: 6px; font-size: 14px; font-weight: 500; cursor: pointer; border: none; transition: filter .15s, background .15s; text-decoration: none; }
+    .btn-outline { background: #fff; border: 1px solid #e2e8f0; color: #374151; }
+    .btn-outline:hover { background: #f9fafb; }
+    .btn-violet { background: linear-gradient(90deg, #7c3aed, #4f46e5); color: #fff; }
+    .btn-violet:hover { filter: brightness(1.08); }
+    .btn-violet:disabled { opacity: .5; cursor: not-allowed; }
+
+    footer { padding: 24px; text-align: center; font-size: 12px; color: #94a3b8; }
+  </style>
+</head>
+<body>
+
+<header>
+  <div class="nav-inner">
+    <a href="dashboard.html" class="brand">
+      <div class="brand-icon">
+        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4"/></svg>
+      </div>
+      <span class="brand-name">RSVP-MASTER</span>
+    </a>
+    <div class="nav-right">
+      <a href="dashboard.html" class="btn-ghost">Dashboard</a>
+      <a href="login.html" class="btn-ghost">
+        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"/></svg>
+        Logout
+      </a>
+    </div>
+  </div>
+</header>
+
+<main>
+  <a href="dashboard.html" class="back-link">
+    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/></svg>
+    Back to Dashboard
+  </a>
+
+  <div class="page-header">
+    <h1 class="page-title">Assign Seat Number</h1>
+    <p class="page-sub">Assign or update a seat for this guest.</p>
+  </div>
+
+  <div class="success-banner" id="successBanner">Seat updated successfully!</div>
+
+  <!-- Guest info card -->
+  <div class="card">
+    <div class="card-accent"></div>
+    <div class="card-body">
+      <div class="card-section-title">Guest Information</div>
+      <div class="guest-row" id="guestRow"></div>
+      <div class="info-table" id="infoTable"></div>
+    </div>
+  </div>
+
+  <!-- Assign form card -->
+  <div class="card">
+    <div class="card-accent"></div>
+    <form id="assignForm">
+      <div class="card-section-title" style="padding:0;margin-bottom:0;">Assign or Update Seat</div>
+      <div class="field">
+        <label>Seat Number</label>
+        <select id="seatSelect">
+          <option value="">-- Select a seat --</option>
+        </select>
+      </div>
+      <div class="preview" id="preview">
+        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/><path stroke-linecap="round" stroke-linejoin="round" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
+        <span id="previewText"></span>
+      </div>
+      <div class="form-actions">
+        <a href="dashboard.html" class="btn btn-outline">Cancel</a>
+        <button type="submit" class="btn btn-violet" id="submitBtn" disabled>
+          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/><path stroke-linecap="round" stroke-linejoin="round" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
+          Update Seat
+        </button>
+      </div>
+    </form>
+  </div>
+</main>
+
+<footer>© 2026 Event RSVP System. All rights reserved.</footer>
+
+<script>
+  const guest = { id:3, name:'user quatro', email:'userquatroo@gmail.com', phone:'01164425285', dietary:'Gluten-Free', seat:10 };
+  const DIETARY_COLORS = { 'None':'badge-none','Halal':'badge-halal','Gluten-Free':'badge-glutenfree','Vegan':'badge-vegan','Vegetarian':'badge-vegetarian' };
+  const AVATAR_COLORS = ['#8b5cf6','#3b82f6','#10b981','#f43f5e','#f59e0b','#ec4899','#6366f1','#06b6d4'];
+  function avatarHex(name) {
+    let h = 0; for (let i = 0; i < name.length; i++) h = name.charCodeAt(i) + h * 31;
+    return AVATAR_COLORS[Math.abs(h) % AVATAR_COLORS.length];
+  }
+  function getInitials(name) { return name.split(' ').map(n => n[0]).join('').toUpperCase().slice(0,2); }
+
+  // Render guest row
+  const row = document.getElementById('guestRow');
+  const av = document.createElement('div');
+  av.className = 'avatar'; av.style.background = avatarHex(guest.name); av.textContent = getInitials(guest.name);
+  row.appendChild(av);
+  const info = document.createElement('div');
+  info.innerHTML = `<div class="g-name">${guest.name}</div><div class="g-email">${guest.email}</div>`;
+  row.appendChild(info);
+
+  // Info table
+  const tbl = document.getElementById('infoTable');
+  const dietBadge = `<span class="badge ${DIETARY_COLORS[guest.dietary]||'badge-none'}">${guest.dietary}</span>`;
+  const seatVal = guest.seat !== null
+    ? `<span class="seat-pill"><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/><path stroke-linecap="round" stroke-linejoin="round" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/></svg>Seat ${guest.seat}</span>`
+    : `<span class="no-seat">Not assigned</span>`;
+  tbl.innerHTML = `
+    <div class="info-row"><span class="info-label">Dietary Preference</span><span>${dietBadge}</span></div>
+    <div class="info-row"><span class="info-label">Current Seat</span><span>${seatVal}</span></div>
+  `;
+
+  // Populate seat dropdown
+  const sel = document.getElementById('seatSelect');
+  for (let i = 1; i <= 20; i++) {
+    const o = document.createElement('option');
+    o.value = i; o.textContent = `Seat ${i}`;
+    sel.appendChild(o);
+  }
+  if (guest.seat) sel.value = guest.seat;
+
+  // Preview
+  const preview = document.getElementById('preview');
+  const previewText = document.getElementById('previewText');
+  const submitBtn = document.getElementById('submitBtn');
+
+  function updatePreview() {
+    const v = sel.value;
+    if (v) {
+      previewText.innerHTML = `<strong style="text-transform:capitalize;">${guest.name}</strong> will be assigned to <strong>Seat ${v}</strong>`;
+      preview.classList.add('show');
+      submitBtn.disabled = false;
+    } else {
+      preview.classList.remove('show');
+      submitBtn.disabled = true;
+    }
+  }
+  sel.addEventListener('change', updatePreview);
+  updatePreview();
+
+  document.getElementById('assignForm').addEventListener('submit', (e) => {
+    e.preventDefault();
+    const banner = document.getElementById('successBanner');
+    banner.classList.add('show');
+    setTimeout(() => banner.classList.remove('show'), 2500);
+  });
+</script>
+</body>
+</html>

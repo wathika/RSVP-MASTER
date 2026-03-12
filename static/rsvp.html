@@ -1,0 +1,238 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Submit RSVP — RSVP-MASTER</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      min-height: 100vh;
+      background: linear-gradient(135deg, #f8fafc 0%, #ffffff 50%, #f8fafc 100%);
+      display: flex; flex-direction: column; color: #0f172a;
+    }
+    header {
+      position: sticky; top: 0; z-index: 30;
+      border-bottom: 1px solid rgba(226,232,240,.8);
+      background: rgba(255,255,255,.8);
+      backdrop-filter: blur(12px);
+    }
+    .nav-inner {
+      max-width: 1120px; margin: 0 auto;
+      height: 64px; padding: 0 24px;
+      display: flex; align-items: center; justify-content: space-between;
+    }
+    .brand { display: flex; align-items: center; gap: 12px; text-decoration: none; }
+    .brand-icon {
+      width: 32px; height: 32px; border-radius: 8px;
+      background: linear-gradient(135deg, #7c3aed, #4f46e5);
+      box-shadow: 0 1px 3px rgba(0,0,0,.15);
+      display: flex; align-items: center; justify-content: center; flex-shrink: 0;
+    }
+    .brand-icon svg { width: 16px; height: 16px; color: #fff; }
+    .brand-name { font-size: 14px; font-weight: 600; letter-spacing: -.3px; color: #0f172a; }
+    nav { display: flex; gap: 4px; }
+    .btn-ghost {
+      display: inline-flex; align-items: center; gap: 6px;
+      height: 32px; padding: 0 12px;
+      border: none; background: none; cursor: pointer;
+      border-radius: 6px; font-size: 14px; color: #64748b;
+      transition: color .15s, background .15s; text-decoration: none;
+    }
+    .btn-ghost:hover { color: #0f172a; background: #f1f5f9; }
+
+    main { flex: 1; max-width: 512px; width: 100%; margin: 0 auto; padding: 48px 16px; }
+
+    /* Hero */
+    .hero { text-align: center; margin-bottom: 32px; }
+    .hero-icon {
+      width: 56px; height: 56px; border-radius: 14px;
+      background: linear-gradient(135deg, #7c3aed, #4f46e5);
+      box-shadow: 0 4px 16px rgba(124,58,237,.3);
+      display: inline-flex; align-items: center; justify-content: center; margin-bottom: 12px;
+    }
+    .hero-icon svg { width: 28px; height: 28px; color: #fff; }
+    .hero h1 { font-size: 24px; font-weight: 700; letter-spacing: -.4px; color: #0f172a; }
+    .hero p { margin-top: 6px; font-size: 14px; color: #64748b; }
+
+    /* Success banner */
+    .success-banner {
+      display: none;
+      align-items: flex-start; gap: 12px;
+      border-radius: 12px; border: 1px solid #a7f3d0;
+      background: #ecfdf5; padding: 14px 16px;
+      font-size: 14px; color: #065f46; margin-bottom: 24px;
+    }
+    .success-banner.show { display: flex; }
+    .success-banner svg { width: 16px; height: 16px; color: #10b981; flex-shrink: 0; margin-top: 2px; }
+    .success-banner .s-close { margin-left: auto; background: none; border: none; cursor: pointer; color: #10b981; display: flex; align-items: center; }
+    .success-banner .s-close:hover { color: #065f46; }
+    .success-banner .s-close svg { width: 16px; height: 16px; }
+    .s-title { font-weight: 600; }
+    .s-sub { color: #047857; margin-top: 2px; }
+
+    /* Card */
+    .card {
+      overflow: hidden; border-radius: 16px;
+      border: 1px solid #e2e8f0; background: #fff;
+      box-shadow: 0 1px 3px rgba(0,0,0,.06);
+    }
+    .card-accent { height: 6px; background: linear-gradient(90deg, #8b5cf6, #6366f1); }
+    form { display: grid; gap: 20px; padding: 24px; }
+
+    .field { display: flex; flex-direction: column; gap: 6px; }
+    .field label { font-size: 14px; font-weight: 500; color: #334155; }
+    .req { color: #f43f5e; }
+    input[type="text"], input[type="email"], input[type="tel"], select {
+      width: 100%; height: 36px;
+      border: 1px solid #e2e8f0; border-radius: 6px;
+      background: #fff; padding: 0 10px;
+      font-size: 14px; color: #0f172a; outline: none;
+      transition: border-color .15s, box-shadow .15s;
+    }
+    input:focus, select:focus { border-color: #8b5cf6; box-shadow: 0 0 0 3px rgba(139,92,246,.15); }
+    input.err, select.err { border-color: #fca5a5; }
+    input.err:focus, select.err:focus { box-shadow: 0 0 0 3px rgba(248,113,113,.2); }
+    .err-msg { font-size: 12px; color: #e11d48; }
+
+    .btn-submit {
+      display: flex; align-items: center; justify-content: center; gap: 8px;
+      height: 38px; border: none; border-radius: 6px; cursor: pointer;
+      background: linear-gradient(90deg, #7c3aed, #4f46e5);
+      color: #fff; font-size: 14px; font-weight: 500;
+      box-shadow: 0 1px 3px rgba(0,0,0,.1);
+      transition: filter .15s; margin-top: 4px;
+    }
+    .btn-submit:hover { filter: brightness(1.08); }
+    .btn-submit:disabled { opacity: .55; cursor: not-allowed; }
+    .btn-submit svg { width: 16px; height: 16px; }
+
+    .foot-note { margin-top: 16px; text-align: center; font-size: 12px; color: #94a3b8; }
+    .foot-note span { color: #7c3aed; }
+    footer { padding: 24px; text-align: center; font-size: 12px; color: #94a3b8; }
+  </style>
+</head>
+<body>
+
+<header>
+  <div class="nav-inner">
+    <a href="rsvp.html" class="brand">
+      <div class="brand-icon">
+        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4"/></svg>
+      </div>
+      <span class="brand-name">RSVP-MASTER</span>
+    </a>
+    <nav>
+      <a href="rsvp.html" class="btn-ghost">Submit RSVP</a>
+      <a href="login.html" class="btn-ghost">Admin</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+  <div class="hero">
+    <div class="hero-icon">
+      <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4"/></svg>
+    </div>
+    <h1>Event RSVP Form</h1>
+    <p>Please submit one RSVP per guest.</p>
+  </div>
+
+  <div class="success-banner" id="successBanner">
+    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+    <div>
+      <div class="s-title">RSVP submitted successfully!</div>
+      <div class="s-sub">Thank you for your response. We look forward to seeing you.</div>
+    </div>
+    <button class="s-close" id="closeBanner">
+      <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+    </button>
+  </div>
+
+  <div class="card">
+    <div class="card-accent"></div>
+    <form id="rsvpForm" novalidate>
+      <div class="field">
+        <label>Name <span class="req">*</span></label>
+        <input type="text" id="fname" placeholder="Your full name" />
+        <span class="err-msg" id="errName"></span>
+      </div>
+      <div class="field">
+        <label>Email <span class="req">*</span></label>
+        <input type="email" id="femail" placeholder="you@example.com" />
+        <span class="err-msg" id="errEmail"></span>
+      </div>
+      <div class="field">
+        <label>Phone <span class="req">*</span></label>
+        <input type="tel" id="fphone" placeholder="+60 12 345 6789" />
+        <span class="err-msg" id="errPhone"></span>
+      </div>
+      <div class="field">
+        <label>Dietary Preference <span class="req">*</span></label>
+        <select id="fdietary">
+          <option value="">-- Select --</option>
+          <option>None</option>
+          <option>Halal</option>
+          <option>Vegetarian</option>
+          <option>Vegan</option>
+          <option>Gluten-Free</option>
+        </select>
+        <span class="err-msg" id="errDietary"></span>
+      </div>
+      <button type="submit" class="btn-submit" id="submitBtn">
+        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
+        Submit RSVP
+      </button>
+    </form>
+  </div>
+
+  <p class="foot-note">Already submitted? <span>Contact the event organiser to make changes.</span></p>
+</main>
+
+<footer>© 2026 Event RSVP System. All rights reserved.</footer>
+
+<script>
+  const form = document.getElementById('rsvpForm');
+  const submitBtn = document.getElementById('submitBtn');
+  const successBanner = document.getElementById('successBanner');
+
+  document.getElementById('closeBanner').addEventListener('click', () => successBanner.classList.remove('show'));
+
+  function setErr(id, msg) {
+    const el = document.getElementById(id);
+    el.textContent = msg;
+  }
+  function clearErrors() {
+    ['errName','errEmail','errPhone','errDietary'].forEach(id => setErr(id, ''));
+    ['fname','femail','fphone','fdietary'].forEach(id => document.getElementById(id).classList.remove('err'));
+  }
+
+  form.addEventListener('submit', (e) => {
+    e.preventDefault();
+    clearErrors();
+    const name = document.getElementById('fname').value.trim();
+    const email = document.getElementById('femail').value.trim();
+    const phone = document.getElementById('fphone').value.trim();
+    const dietary = document.getElementById('fdietary').value;
+    let valid = true;
+    if (!name) { setErr('errName','Name is required.'); document.getElementById('fname').classList.add('err'); valid=false; }
+    if (!email) { setErr('errEmail','Email is required.'); document.getElementById('femail').classList.add('err'); valid=false; }
+    else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) { setErr('errEmail','Enter a valid email.'); document.getElementById('femail').classList.add('err'); valid=false; }
+    if (!phone) { setErr('errPhone','Phone is required.'); document.getElementById('fphone').classList.add('err'); valid=false; }
+    if (!dietary) { setErr('errDietary','Please select a dietary preference.'); document.getElementById('fdietary').classList.add('err'); valid=false; }
+    if (!valid) return;
+
+    submitBtn.disabled = true;
+    submitBtn.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>Submitting…`;
+    setTimeout(() => {
+      submitBtn.disabled = false;
+      submitBtn.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>Submit RSVP`;
+      form.reset();
+      successBanner.classList.add('show');
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }, 800);
+  });
+</script>
+</body>
+</html>

@@ -1,0 +1,245 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Edit RSVP — RSVP-MASTER</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      min-height: 100vh;
+      background: linear-gradient(135deg, #f8fafc 0%, #ffffff 50%, #f8fafc 100%);
+      display: flex; flex-direction: column; color: #0f172a;
+    }
+    header {
+      position: sticky; top: 0; z-index: 30;
+      border-bottom: 1px solid rgba(226,232,240,.8);
+      background: rgba(255,255,255,.8); backdrop-filter: blur(12px);
+    }
+    .nav-inner {
+      max-width: 1120px; margin: 0 auto; height: 64px; padding: 0 24px;
+      display: flex; align-items: center; justify-content: space-between;
+    }
+    .brand { display: flex; align-items: center; gap: 12px; text-decoration: none; }
+    .brand-icon {
+      width: 32px; height: 32px; border-radius: 8px;
+      background: linear-gradient(135deg, #7c3aed, #4f46e5);
+      box-shadow: 0 1px 3px rgba(0,0,0,.15);
+      display: flex; align-items: center; justify-content: center; flex-shrink: 0;
+    }
+    .brand-icon svg { width: 16px; height: 16px; color: #fff; }
+    .brand-name { font-size: 14px; font-weight: 600; letter-spacing: -.3px; color: #0f172a; }
+    .nav-right { display: flex; gap: 4px; }
+    .btn-ghost {
+      display: inline-flex; align-items: center; gap: 6px; height: 32px; padding: 0 12px;
+      border: none; background: none; cursor: pointer; border-radius: 6px;
+      font-size: 14px; color: #64748b; text-decoration: none; transition: color .15s, background .15s;
+    }
+    .btn-ghost:hover { color: #0f172a; background: #f1f5f9; }
+    .btn-ghost svg { width: 16px; height: 16px; }
+
+    main { flex: 1; max-width: 672px; width: 100%; margin: 0 auto; padding: 40px 24px; }
+
+    .back-link {
+      display: inline-flex; align-items: center; gap: 6px;
+      font-size: 14px; color: #7c3aed; text-decoration: none; margin-bottom: 24px;
+    }
+    .back-link:hover { text-decoration: underline; }
+    .back-link svg { width: 16px; height: 16px; }
+
+    .page-header { margin-bottom: 32px; }
+    .page-title { font-size: 24px; font-weight: 700; letter-spacing: -.4px; color: #0f172a; }
+    .page-sub { margin-top: 4px; font-size: 14px; color: #64748b; }
+
+    /* Guest identity card */
+    .guest-card {
+      display: flex; align-items: center; gap: 16px;
+      border-radius: 12px; border: 1px solid #e2e8f0; background: #fff;
+      padding: 16px 20px; box-shadow: 0 1px 3px rgba(0,0,0,.06); margin-bottom: 24px;
+    }
+    .avatar {
+      width: 48px; height: 48px; border-radius: 50%; flex-shrink: 0;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 13px; font-weight: 600; color: #fff;
+    }
+    .g-name { font-size: 15px; font-weight: 600; text-transform: capitalize; color: #1e293b; }
+    .g-email { font-size: 13px; color: #94a3b8; margin-top: 2px; }
+    .seat-pill {
+      margin-left: auto; display: inline-flex; align-items: center; gap: 6px;
+      padding: 4px 12px; border-radius: 999px;
+      border: 1px solid #ddd6fe; background: #f5f3ff;
+      font-size: 12px; font-weight: 600; color: #6d28d9; white-space: nowrap;
+    }
+    .seat-pill svg { width: 12px; height: 12px; }
+    .no-seat { margin-left: auto; font-size: 12px; font-style: italic; color: #94a3b8; }
+
+    /* Success banner */
+    .success-banner {
+      display: none; align-items: center;
+      border-radius: 12px; border: 1px solid #a7f3d0;
+      background: #ecfdf5; padding: 12px 16px;
+      font-size: 14px; font-weight: 500; color: #065f46; margin-bottom: 20px;
+    }
+    .success-banner.show { display: flex; }
+
+    /* Form card */
+    .card {
+      overflow: hidden; border-radius: 16px; border: 1px solid #e2e8f0;
+      background: #fff; box-shadow: 0 1px 3px rgba(0,0,0,.06);
+    }
+    .card-accent { height: 4px; background: linear-gradient(90deg, #8b5cf6, #6366f1); }
+    form { display: grid; gap: 20px; padding: 24px; }
+    .field { display: flex; flex-direction: column; gap: 6px; }
+    .field label { font-size: 14px; font-weight: 500; color: #334155; }
+    input[type="text"], input[type="email"], input[type="tel"], select {
+      width: 100%; height: 36px; border: 1px solid #e2e8f0; border-radius: 6px;
+      background: #fff; padding: 0 10px; font-size: 14px; color: #0f172a; outline: none;
+      transition: border-color .15s, box-shadow .15s;
+    }
+    input:focus, select:focus { border-color: #8b5cf6; box-shadow: 0 0 0 3px rgba(139,92,246,.15); }
+    .seat-display {
+      display: flex; align-items: center; gap: 8px;
+      height: 36px; border: 1px solid #e2e8f0; border-radius: 6px;
+      background: #f8fafc; padding: 0 10px; font-size: 14px;
+    }
+    .seat-display svg { width: 16px; height: 16px; color: #8b5cf6; flex-shrink: 0; }
+    .form-actions { display: flex; align-items: center; justify-content: flex-end; gap: 12px; padding-top: 8px; }
+    .btn { display: inline-flex; align-items: center; justify-content: center; gap: 6px; height: 36px; padding: 0 16px; border-radius: 6px; font-size: 14px; font-weight: 500; cursor: pointer; border: none; transition: filter .15s, background .15s; text-decoration: none; }
+    .btn-outline { background: #fff; border: 1px solid #e2e8f0; color: #374151; }
+    .btn-outline:hover { background: #f9fafb; }
+    .btn-violet { background: linear-gradient(90deg, #7c3aed, #4f46e5); color: #fff; }
+    .btn-violet:hover { filter: brightness(1.08); }
+
+    footer { padding: 24px; text-align: center; font-size: 12px; color: #94a3b8; }
+  </style>
+</head>
+<body>
+
+<header>
+  <div class="nav-inner">
+    <a href="dashboard.html" class="brand">
+      <div class="brand-icon">
+        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4"/></svg>
+      </div>
+      <span class="brand-name">RSVP-MASTER</span>
+    </a>
+    <div class="nav-right">
+      <a href="dashboard.html" class="btn-ghost">Dashboard</a>
+      <a href="login.html" class="btn-ghost">
+        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"/></svg>
+        Logout
+      </a>
+    </div>
+  </div>
+</header>
+
+<main>
+  <a href="dashboard.html" class="back-link">
+    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/></svg>
+    Back to Dashboard
+  </a>
+
+  <div class="page-header">
+    <h1 class="page-title">Edit RSVP</h1>
+    <p class="page-sub">Update guest details below.</p>
+  </div>
+
+  <!-- Guest identity card -->
+  <div class="guest-card" id="guestCard"></div>
+
+  <!-- Success banner -->
+  <div class="success-banner" id="successBanner">RSVP updated successfully!</div>
+
+  <!-- Form card -->
+  <div class="card">
+    <div class="card-accent"></div>
+    <form id="editForm">
+      <div class="field"><label>Name</label><input type="text" id="fname" placeholder="Guest full name" /></div>
+      <div class="field"><label>Email</label><input type="email" id="femail" placeholder="guest@example.com" /></div>
+      <div class="field"><label>Phone</label><input type="tel" id="fphone" placeholder="+60 12 345 6789" /></div>
+      <div class="field">
+        <label>Dietary Preference</label>
+        <select id="fdietary">
+          <option>None</option><option>Halal</option><option>Vegetarian</option><option>Vegan</option><option>Gluten-Free</option>
+        </select>
+      </div>
+      <div class="field">
+        <label>Seat Number</label>
+        <div class="seat-display">
+          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/><path stroke-linecap="round" stroke-linejoin="round" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
+          <span id="seatDisplay"></span>
+        </div>
+      </div>
+      <div class="form-actions">
+        <a href="dashboard.html" class="btn btn-outline">Cancel</a>
+        <button type="submit" class="btn btn-violet">
+          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M8 7H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-3m-1 4l-3 3m0 0l-3-3m3 3V4"/></svg>
+          Update RSVP
+        </button>
+      </div>
+    </form>
+  </div>
+</main>
+
+<footer>© 2026 Event RSVP System. All rights reserved.</footer>
+
+<script>
+  // Sample guest (in real app, load from URL params / localStorage)
+  const guest = { id:3, name:'user quatro', email:'userquatroo@gmail.com', phone:'01164425285', dietary:'Gluten-Free', seat:10 };
+
+  const AVATAR_COLORS = ['#8b5cf6','#3b82f6','#10b981','#f43f5e','#f59e0b','#ec4899','#6366f1','#06b6d4'];
+  function avatarHex(name) {
+    let h = 0; for (let i = 0; i < name.length; i++) h = name.charCodeAt(i) + h * 31;
+    return AVATAR_COLORS[Math.abs(h) % AVATAR_COLORS.length];
+  }
+  function getInitials(name) { return name.split(' ').map(n => n[0]).join('').toUpperCase().slice(0,2); }
+
+  function renderGuestCard() {
+    const nameVal = document.getElementById('fname').value || guest.name;
+    const card = document.getElementById('guestCard');
+    card.innerHTML = '';
+    const av = document.createElement('div');
+    av.className = 'avatar';
+    av.style.background = avatarHex(nameVal);
+    av.textContent = getInitials(nameVal);
+    card.appendChild(av);
+    const info = document.createElement('div');
+    info.innerHTML = `<div class="g-name">${nameVal}</div><div class="g-email">${document.getElementById('femail').value || guest.email}</div>`;
+    card.appendChild(info);
+    const seatEl = document.createElement('span');
+    if (guest.seat !== null) {
+      seatEl.className = 'seat-pill';
+      seatEl.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/><path stroke-linecap="round" stroke-linejoin="round" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/></svg>Seat ${guest.seat}`;
+    } else {
+      seatEl.className = 'no-seat'; seatEl.textContent = 'Not assigned';
+    }
+    card.appendChild(seatEl);
+  }
+
+  // Populate form
+  document.getElementById('fname').value = guest.name;
+  document.getElementById('femail').value = guest.email;
+  document.getElementById('fphone').value = guest.phone;
+  document.getElementById('fdietary').value = guest.dietary;
+  const sd = document.getElementById('seatDisplay');
+  sd.textContent = guest.seat !== null ? `Seat ${guest.seat}` : 'Not assigned — use Assign Seat';
+  sd.style.color = guest.seat !== null ? '#6d28d9' : '#94a3b8';
+  sd.style.fontStyle = guest.seat !== null ? 'normal' : 'italic';
+  sd.style.fontWeight = guest.seat !== null ? '600' : 'normal';
+
+  renderGuestCard();
+
+  // Live update card
+  document.getElementById('fname').addEventListener('input', renderGuestCard);
+  document.getElementById('femail').addEventListener('input', renderGuestCard);
+
+  document.getElementById('editForm').addEventListener('submit', (e) => {
+    e.preventDefault();
+    const banner = document.getElementById('successBanner');
+    banner.classList.add('show');
+    setTimeout(() => banner.classList.remove('show'), 2500);
+  });
+</script>
+</body>
+</html>
