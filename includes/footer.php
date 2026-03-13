@@ -4,6 +4,9 @@
  * Include at the bottom of every page
  */
 ?>
+    </div> <!-- closing main container from header because footer was ending up inside it -->
+    </main>
+
     <footer>
         © 2026 Event RSVP System. All rights reserved.
     </footer>

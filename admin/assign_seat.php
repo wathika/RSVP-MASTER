@@ -48,7 +48,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     // Convert empty string to NULL for unassigned
     $new_seat = ($seat_number === '' || $seat_number === 'unassigned') ? null : (int)$seat_number;
 
-    if ($new_seat !== null) {
+    // If selection is same as current value, do not write to DB
+    if ($new_seat === ($rsvp['seat_number'] !== null ? (int)$rsvp['seat_number'] : null)) {
+        $success = 'No changes made. Seat remains ' . ($new_seat === null ? 'unassigned.' : ('Seat ' . $new_seat . '.'));
+    } elseif ($new_seat !== null) {
         // Validate seat number range
         if ($new_seat < 1 || $new_seat > 20) {
             $error = 'Seat number must be between 1 and 20.';
@@ -102,106 +105,108 @@ function get_dietary_badge_class($pref) {
 require_once __DIR__ . '/../includes/header.php';
 ?>
 
-<a class="back-link" href="<?php echo app_path('admin/index.php'); ?>">
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-        <line x1="19" y1="12" x2="5" y2="12"></line>
-        <polyline points="12 19 5 12 12 5"></polyline>
-    </svg>
-    Back to Dashboard
-</a>
-
-<div class="page-header">
-    <h1 class="page-title">Assign Seat</h1>
-    <p class="page-sub">Select a seat number for this guest</p>
-</div>
-
-<?php if ($success !== ''): ?>
-    <div class="success-banner show">
+<div class="main-wrap">
+    <a class="back-link" href="<?php echo app_path('admin/index.php'); ?>">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-            <polyline points="20 6 9 17 4 12"></polyline>
+            <line x1="19" y1="12" x2="5" y2="12"></line>
+            <polyline points="12 19 5 12 12 5"></polyline>
         </svg>
-        <div>
-            <div class="s-title">Seat assigned successfully</div>
-            <div class="s-sub"><?php echo htmlspecialchars($success); ?></div>
-        </div>
-        <button class="s-close">
+        Back to Dashboard
+    </a>
+
+    <div class="page-header">
+        <h1 class="page-title">Assign Seat</h1>
+        <p class="page-sub">Select a seat number for this guest</p>
+    </div>
+
+    <?php if ($success !== ''): ?>
+        <div class="success-banner show">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                <line x1="18" y1="6" x2="6" y2="18"></line>
-                <line x1="6" y1="6" x2="18" y2="18"></line>
+                <polyline points="20 6 9 17 4 12"></polyline>
             </svg>
-        </button>
-    </div>
-<?php endif; ?>
-
-<?php if ($error !== ''): ?>
-    <div class="error-box" style="display: block;">
-        <?php echo htmlspecialchars($error); ?>
-    </div>
-<?php endif; ?>
-
-<!-- Guest Information Card -->
-<div class="guest-card">
-    <span class="avatar"><?php echo get_initials($rsvp['name']); ?></span>
-    <div>
-        <div class="g-name"><?php echo htmlspecialchars($rsvp['name']); ?></div>
-        <div class="g-email"><?php echo htmlspecialchars($rsvp['email']); ?></div>
-    </div>
-</div>
-
-<div class="info-table">
-    <div class="info-row">
-        <span class="info-label">Dietary Preference</span>
-        <span class="badge <?php echo get_dietary_badge_class($rsvp['dietary_preference']); ?>">
-            <?php echo htmlspecialchars($rsvp['dietary_preference']); ?>
-        </span>
-    </div>
-    <div class="info-row">
-        <span class="info-label">Current Seat</span>
-        <span class="info-value">
-            <?php if ($rsvp['seat_number'] !== null): ?>
-                Seat <?php echo htmlspecialchars($rsvp['seat_number']); ?>
-            <?php else: ?>
-                <em>Not assigned</em>
-            <?php endif; ?>
-        </span>
-    </div>
-</div>
-
-<!-- Seat Assignment Form -->
-<div class="card">
-    <div class="card-accent"></div>
-    <div class="card-body">
-        <form method="POST" action="" id="assignForm">
-            <div class="preview">
+            <div>
+                <div class="s-title">Seat update</div>
+                <div class="s-sub"><?php echo htmlspecialchars($success); ?></div>
+            </div>
+            <button class="s-close">
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                    <polyline points="22 12 18 12 15 21 9 3 6 12 2 12"></polyline>
+                    <line x1="18" y1="6" x2="6" y2="18"></line>
+                    <line x1="6" y1="6" x2="18" y2="18"></line>
                 </svg>
-                <span id="previewText">Select a seat number</span>
-            </div>
+            </button>
+        </div>
+    <?php endif; ?>
 
-            <div class="field">
-                <label for="seatSelect">Select Seat <span class="req">*</span></label>
-                <select id="seatSelect" name="seat_number" required>
-                    <option value="">-- Choose a seat --</option>
-                    <option value="unassigned" <?php echo $rsvp['seat_number'] === null ? 'selected' : ''; ?>>Unassigned</option>
-                    <?php for ($i = 1; $i <= 20; $i++): ?>
-                        <option value="<?php echo $i; ?>" <?php echo $rsvp['seat_number'] == $i ? 'selected' : ''; ?>>
-                            Seat <?php echo $i; ?>
-                        </option>
-                    <?php endfor; ?>
-                </select>
-            </div>
+    <?php if ($error !== ''): ?>
+        <div class="error-box" style="display: block;">
+            <?php echo htmlspecialchars($error); ?>
+        </div>
+    <?php endif; ?>
 
-            <div class="form-actions">
-                <a href="<?php echo app_path('admin/index.php'); ?>" class="btn btn-outline">Cancel</a>
-                <button type="submit" class="btn btn-primary">
+    <!-- Guest Information Card -->
+    <div class="guest-card">
+        <span class="avatar"><?php echo get_initials($rsvp['name']); ?></span>
+        <div>
+            <div class="g-name"><?php echo htmlspecialchars($rsvp['name']); ?></div>
+            <div class="g-email"><?php echo htmlspecialchars($rsvp['email']); ?></div>
+        </div>
+    </div>
+
+    <div class="info-table">
+        <div class="info-row">
+            <span class="info-label">Dietary Preference</span>
+            <span class="badge <?php echo get_dietary_badge_class($rsvp['dietary_preference']); ?>">
+                <?php echo htmlspecialchars($rsvp['dietary_preference']); ?>
+            </span>
+        </div>
+        <div class="info-row">
+            <span class="info-label">Current Seat</span>
+            <span class="info-value">
+                <?php if ($rsvp['seat_number'] !== null): ?>
+                    Seat <?php echo htmlspecialchars($rsvp['seat_number']); ?>
+                <?php else: ?>
+                    <em>Not assigned</em>
+                <?php endif; ?>
+            </span>
+        </div>
+    </div>
+
+    <!-- Seat Assignment Form -->
+    <div class="card">
+        <div class="card-accent"></div>
+        <div class="card-body">
+            <form method="POST" action="" id="assignForm">
+                <div class="preview">
                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                        <polyline points="20 6 9 17 4 12"></polyline>
+                        <polyline points="22 12 18 12 15 21 9 3 6 12 2 12"></polyline>
                     </svg>
-                    Update Seat
-                </button>
-            </div>
-        </form>
+                    <span id="previewText">Select a seat number</span>
+                </div>
+
+                <div class="field">
+                    <label for="seatSelect">Select Seat <span class="req">*</span></label>
+                    <select id="seatSelect" name="seat_number" required>
+                        <option value="">-- Choose a seat --</option>
+                        <option value="unassigned" <?php echo $rsvp['seat_number'] === null ? 'selected' : ''; ?>>Unassigned</option>
+                        <?php for ($i = 1; $i <= 20; $i++): ?>
+                            <option value="<?php echo $i; ?>" <?php echo $rsvp['seat_number'] == $i ? 'selected' : ''; ?>>
+                                Seat <?php echo $i; ?>
+                            </option>
+                        <?php endfor; ?>
+                    </select>
+                </div>
+
+                <div class="form-actions">
+                    <a href="<?php echo app_path('admin/index.php'); ?>" class="btn btn-outline">Cancel</a>
+                    <button type="submit" class="btn btn-primary">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <polyline points="20 6 9 17 4 12"></polyline>
+                        </svg>
+                        Update Seat
+                    </button>
+                </div>
+            </form>
+        </div>
     </div>
 </div>
 

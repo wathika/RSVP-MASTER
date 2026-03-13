@@ -264,6 +264,11 @@ button[type='submit']:disabled:not(.btn-rose):not(.btn-outline):not(.btn-destruc
   min-width: 148px;
 }
 
+.btn-rose svg {
+  width: 16px;
+  height: 16px;
+}
+
 .btn-rose:hover {
   background: #be123c;
 }
@@ -292,6 +297,11 @@ button[type='submit']:disabled:not(.btn-rose):not(.btn-outline):not(.btn-destruc
   font-weight: 500;
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
   transition: filter 0.15s;
+}
+
+.btn-submit svg {
+  width: 16px;
+  height: 16px;
 }
 
 .btn-submit:hover {
@@ -357,6 +367,13 @@ button[type='submit']:disabled:not(.btn-rose):not(.btn-outline):not(.btn-destruc
 .btn-more svg {
   width: 16px;
   height: 16px;
+}
+
+.btn-more-glyph {
+  display: inline-block;
+  font-size: 18px;
+  line-height: 1;
+  color: #475569;
 }
 
 /* ========================================

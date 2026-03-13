@@ -95,7 +95,7 @@ require_once __DIR__ . '/../includes/header.php';
                 <button type="submit" class="btn btn-primary btn-full">Login</button>
             </form>
 
-            <p class="foot-note">New to the admin panel? <a href="<?php echo app_path('public/rsvp.php'); ?>">Back to RSVP</a></p>
+            <p class="foot-note">Not an Admin? <a href="<?php echo app_path('public/rsvp.php'); ?>">Submit an RSVP</a></p>
         </div>
     </div>
 </div>
